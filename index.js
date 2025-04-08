@@ -20,9 +20,14 @@ app.get('/tasks', async (req, res) => {
 });
 
 app.post('/tasks', async (req, res) => {
-    const newTask = new TaskModel(req.body);
-    await newTask.save();
-    res.status(201).send(newTask);
+    try {
+        const newTask = new TaskModel(req.body);
+        await newTask.save();
+        res.status(201).send(newTask);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send(error.message);
+    }
 })
 
 app.listen(8000, () => console.log('Escutando na porta 8000!'));
