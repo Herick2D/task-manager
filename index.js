@@ -35,6 +35,37 @@ app.get('/tasks/:id', async (req, res) => {
     }
 });
 
+app.patch('/tasks/:id', async (req, res) => {
+    try {
+        const taskId = req.params.id;
+        const data = req.body;
+
+        const taskToUpdate = await TaskModel.findById(taskId);
+        if (!taskId) {
+            res.status(404).send('Task não encontrada');
+        }
+
+        const allowedUpdates = ['estaCompleto']; // define as chaves que podem ser editadas pelo método
+        const requestedUpadates = Object.keys(data);
+
+        for (update of requestedUpadates) {
+            if (allowedUpdates.includes(update)) {
+                taskToUpdate[update] = data[update];
+            } else {
+                return res
+                    .status(400)
+                    .send('Um ou mais campos inseridos não são editáveis'); // caso nenhuma chave seja validada
+            }
+        }
+
+        const result = await taskToUpdate.save();
+        res.status(200).send(result);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error.message);
+    }
+});
+
 app.post('/tasks', async (req, res) => {
     try {
         const newTask = new TaskModel(req.body);
