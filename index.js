@@ -28,6 +28,24 @@ app.post('/tasks', async (req, res) => {
         console.log(error.message);
         res.status(500).send(error.message);
     }
-})
+});
+
+app.delete('/tasks/:id', async (req, res) => {
+    try {
+        const taskId = req.params.id;
+
+        const taskToDelete = await TaskModel.findById(taskId);
+
+        if (!taskToDelete) {
+            res.status(400).send('Task não encontrada');
+        }
+
+        const deletedtask = await TaskModel.findByIdAndDelete(taskId);
+        res.status(200).send(deletedtask);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send(error.message);
+    }
+});
 
 app.listen(8000, () => console.log('Escutando na porta 8000!'));

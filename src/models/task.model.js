@@ -9,8 +9,8 @@ const TaskSchema = new Schema({
     estaCompleto: {
         type: Boolean,
         default: false,
-    }
-})
+    },
+});
 
 const TaskModel = mongoose.model('Tasks', TaskSchema);
 
