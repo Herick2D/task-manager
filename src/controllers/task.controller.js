@@ -1,4 +1,5 @@
 const TaskModel = require('../models/task.model');
+const { notFoundError } = require('../errors/mongodb.errors');
 
 class TaskController {
     constructor(req, res) {
@@ -18,11 +19,11 @@ class TaskController {
     async getById(id) {
         try {
             const taskId = this.req.params.id;
-            if (!taskId) {
-                this.res.status(404).send('Task não encontrada');
-            }
 
             const task = await TaskModel.findById(taskId);
+            if (!task) {
+                return notFoundError(this.res);
+            }
 
             return this.res.status(200).json(task);
         } catch (error) {
@@ -48,8 +49,8 @@ class TaskController {
             const data = this.req.body;
 
             const taskToUpdate = await TaskModel.findById(taskId);
-            if (!taskId) {
-                res.status(404).send('Task não encontrada');
+            if (!taskToUpdate) {
+                return notFoundError(this.res);
             }
 
             const allowedUpdates = ['estaCompleto']; // define as chaves que podem ser editadas pelo método
@@ -78,9 +79,8 @@ class TaskController {
             const taskId = this.req.params.id;
 
             const taskToDelete = await TaskModel.findById(taskId);
-
             if (!taskToDelete) {
-                this.res.status(404).send('Task não encontrada');
+                return notFoundError(this.res);
             }
 
             const deletedtask = await TaskModel.findByIdAndDelete(taskId);
