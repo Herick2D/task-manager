@@ -1,6 +1,10 @@
 const TaskModel = require('../models/task.model');
-const { notFoundError } = require('../errors/mongodb.errors');
+const {
+    notFoundError,
+    objectIdCastError,
+} = require('../errors/mongodb.errors');
 const { notAllowedFieldsToUpdateError } = require('../errors/general.errors');
+const { Error } = require('mongoose');
 
 class TaskController {
     constructor(req, res) {
@@ -11,7 +15,7 @@ class TaskController {
     async getAll() {
         try {
             const tasks = await TaskModel.find({});
-            this.res.status(200).json(tasks);
+            this.res.status(200).send(tasks);
         } catch (error) {
             this.res.status(500).send(error.message);
         }
@@ -26,9 +30,12 @@ class TaskController {
                 return notFoundError(this.res);
             }
 
-            return this.res.status(200).json(task);
+            return this.res.status(200).send(task);
         } catch (error) {
-            console.log(error.message);
+            const taskId = this.req.params.id;
+            if (error instanceof Error.CastError) {
+                return objectIdCastError(this.res, taskId); // aqui eu fui gênio
+            }
             this.res.status(500).send(error.message);
         }
     }
@@ -68,8 +75,12 @@ class TaskController {
             const result = await taskToUpdate.save();
             this.res.status(200).send(result);
         } catch (error) {
-            console.log(error);
-            this.res.status(500).send(error.message);
+            const taskId = this.req.params.id;
+            if (error instanceof Error.CastError) {
+                return objectIdCastError(this.res, taskId);
+            }
+
+            return this.res.status(500).send(error.message);
         }
     }
 
@@ -85,7 +96,10 @@ class TaskController {
             const deletedtask = await TaskModel.findByIdAndDelete(taskId);
             this.res.status(200).send(deletedtask);
         } catch (error) {
-            console.log(error.message);
+            const taskId = this.req.params.id;
+            if (error instanceof Error.CastError) {
+                return objectIdCastError(this.res, taskId);
+            }
             this.res.status(500).send(error.message);
         }
     }
