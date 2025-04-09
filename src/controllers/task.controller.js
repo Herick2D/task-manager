@@ -55,7 +55,7 @@ class TaskController {
             const allowedUpdates = ['estaCompleto']; // define as chaves que podem ser editadas pelo método
             const requestedUpadates = Object.keys(data);
 
-            for (update of requestedUpadates) {
+            for (const update of requestedUpadates) {
                 if (allowedUpdates.includes(update)) {
                     taskToUpdate[update] = data[update];
                 } else {
